@@ -1,0 +1,19 @@
+{
+  "ontologias": [
+    {
+      "nombre": "DCAT-AP",
+      "url": "https://joinup.ec.europa.eu/collection/semantic-interoperability-community-semic/solution/dcat-application-profile-data-portals-europe",
+      "uso": "Se emplea para describir datasets y distribuciones en el catálogo del dataspace."
+    },
+    {
+      "nombre": "SOSA/SSN",
+      "url": "https://www.w3.org/TR/vocab-ssn/",
+      "uso": "Se utiliza para modelar observaciones (p.ej. niveles de contaminación, recuento de vehículos) y los sensores que las generan."
+    },
+    {
+      "nombre": "NGSI-LD",
+      "url": "https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.03.01_60/gs_CIM009v010301p.pdf",
+      "uso": "Es el modelo semántico base del dataspace, permitiendo representar entidades con propiedades, relaciones y contexto temporal."
+    }
+  ]
+}

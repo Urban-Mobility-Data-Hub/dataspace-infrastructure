@@ -1,0 +1,11 @@
+{
+  "@context": {
+    "SOSA": "http://www.w3.org/ns/sosa/",
+    "Observation": "SOSA:Observation",
+    "Sensor": "SOSA:Sensor",
+    "observes": "SOSA:observes",
+    "madeBySensor": "SOSA:madeBySensor",
+    "resultTime": "SOSA:resultTime",
+    "hasResult": "SOSA:hasResult"
+  }
+}

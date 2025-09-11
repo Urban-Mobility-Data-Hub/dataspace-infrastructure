@@ -1,0 +1,80 @@
+[
+  {
+    "id": "urn:ngsi-ld:Observation:traffic-001",
+    "type": "SOSA:Observation",
+    "madeBySensor": {
+      "type": "Relationship",
+      "object": "urn:ngsi-ld:Sensor:traffic-sensor-01"
+    },
+    "observedProperty": {
+      "type": "Property",
+      "value": "vehicleCount"
+    },
+    "resultTime": {
+      "type": "Property",
+      "value": "2025-09-11T10:00:00Z"
+    },
+    "hasResult": {
+      "type": "Property",
+      "value": 42
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Sensor:traffic-sensor-01",
+    "type": "SOSA:Sensor",
+    "name": {
+      "type": "Property",
+      "value": "Sensor de tráfico principal"
+    },
+    "observes": {
+      "type": "Property",
+      "value": "Número de vehículos/minuto"
+    },
+    "location": {
+      "type": "GeoProperty",
+      "value": {
+        "type": "Point",
+        "coordinates": [-0.3763, 39.4699]
+      }
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Observation:pollution-001",
+    "type": "SOSA:Observation",
+    "madeBySensor": {
+      "type": "Relationship",
+      "object": "urn:ngsi-ld:Sensor:pollution-sensor-01"
+    },
+    "observedProperty": {
+      "type": "Property",
+      "value": "NO2"
+    },
+    "resultTime": {
+      "type": "Property",
+      "value": "2025-09-11T10:05:00Z"
+    },
+    "hasResult": {
+      "type": "Property",
+      "value": 55
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Sensor:pollution-sensor-01",
+    "type": "SOSA:Sensor",
+    "name": {
+      "type": "Property",
+      "value": "Sensor de contaminación NO2"
+    },
+    "observes": {
+      "type": "Property",
+      "value": "Concentración de dióxido de nitrógeno (µg/m³)"
+    },
+    "location": {
+      "type": "GeoProperty",
+      "value": {
+        "type": "Point",
+        "coordinates": [-0.3774, 39.4705]
+      }
+    }
+  }
+]

@@ -33,7 +33,7 @@ spec:
         helm.sh/chart: etcd-10.2.18
         app.kubernetes.io/component: etcd
       annotations:
-        checksum/token-secret: d8b8dffad464b3795c9266e62f2f0af207d5e9bd9cffb49f8f272120173c7b3a
+        checksum/token-secret: 1847f030ec74e56677e5c02bc0582c9c183dd965762624d7455e619bd58ed259
     spec:
       
       automountServiceAccountToken: false
@@ -191,3 +191,4 @@ spec:
         resources:
           requests:
             storage: "8Gi"
+        storageClassName: local-path

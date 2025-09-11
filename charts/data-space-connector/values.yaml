@@ -225,6 +225,7 @@ apisix:
     persistence:
       # -- should it be enabled
       enabled: true
+      storageClass: local-path 
   # -- configuration in regard to the apisix dataplane
   dataPlane:
     # -- resource preset to have sufficient memory
@@ -366,7 +367,7 @@ scorpio:
     # -- repository to be used - resource friendly all-in-one-runner without kafka
     repository: scorpiobroker/all-in-one-runner
     # -- tag of the image to be used - latest java image without kafka
-    tag: java-4.1.10
+    tag: java-4.1.12
   ## configuration of the database to be used by broker
   db:
     # -- host of the db

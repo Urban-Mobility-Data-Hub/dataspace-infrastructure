@@ -28,7 +28,7 @@ spec:
       annotations:
         checksum/config: 98aedadb47d48bf723736a4de40fc30099effb0737106c9385cd9a4d06ebb862
         checksum/config-extra: c30d31dc5dfad63c55880080f5972bfb455bab11215c68c2ccf814d9eabed303
-        checksum/secret: db5de76ba3e09bb65076b27639a6b6d0f2f7c326ae67654488592b57686d4c11
+        checksum/secret: 05c09c36f0fbe8ffea00e6af805e52464eb7e1621c54264fdd2b246d1d8ba735
       labels:
         app.kubernetes.io/instance: provider
         app.kubernetes.io/managed-by: Helm

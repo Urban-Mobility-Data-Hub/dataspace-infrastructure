@@ -1,0 +1,27 @@
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@id": "urn:ngsi-ld:Dataset:urban-mobility-001",
+  "@type": "dcat:Dataset",
+  "dct:title": "Dataset simulado de movilidad urbana",
+  "dct:description": "Conjunto de datos de ejemplo sobre tráfico y contaminación, generado como prueba en el Dataspace UMDH.",
+  "dct:issued": { "@value": "2025-09-11", "@type": "xsd:date" },
+  "dct:modified": { "@value": "2025-09-11", "@type": "xsd:date" },
+  "dct:publisher": {
+    "@type": "foaf:Organization",
+    "foaf:name": "ValgrAI"
+  },
+  "dcat:keyword": ["movilidad", "tráfico", "contaminación", "FIWARE", "NGSI-LD"],
+  "dct:license": "https://creativecommons.org/licenses/by/4.0/",
+  "dcat:distribution": {
+    "@type": "dcat:Distribution",
+    "dcat:accessURL": "http://scorpio-provider.127.0.0.1.nip.io:8080/ngsi-ld/v1/entities",
+    "dct:format": "application/ld+json",
+    "dcat:mediaType": "application/ld+json",
+    "dct:conformsTo": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+  }
+}

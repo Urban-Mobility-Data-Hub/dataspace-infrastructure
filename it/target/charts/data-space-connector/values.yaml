@@ -225,6 +225,7 @@ apisix:
     persistence:
       # -- should it be enabled
       enabled: true
+      storageClass: local-path 
   # -- configuration in regard to the apisix dataplane
   dataPlane:
     # -- resource preset to have sufficient memory
