@@ -1,0 +1,32 @@
+---
+# Source: data-space-connector/charts/credentials-config-service/templates/registration-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: credentials-config-service-job
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: credentials-config-service
+    helm.sh/chart: credentials-config-service-2.1.12
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  template:
+    spec:
+      containers:
+        - name: register-credential-config
+          image: quay.io/curl/curl:8.1.2
+          command: [ "/bin/sh", "-c", "/bin/init.sh" ]
+          volumeMounts:
+            - name: registration
+              mountPath: /bin/init.sh
+              subPath: init.sh
+      volumes:
+        - name: registration
+          configMap:
+            name: credentials-config-service-registration
+            defaultMode: 0755
+      restartPolicy: Never
+  backoffLimit: 10

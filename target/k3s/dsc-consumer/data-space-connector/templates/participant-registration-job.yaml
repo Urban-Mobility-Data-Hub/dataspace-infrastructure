@@ -1,0 +1,31 @@
+---
+# Source: data-space-connector/templates/participant-registration-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: consumer-til-registration
+  namespace: "consumer"
+  labels:
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: consumer
+    app.kubernetes.io/managed-by: Helm
+spec:
+  template:
+    spec:
+      containers:
+        - name: register-credential-config
+          image: quay.io/curl/curl:8.1.2
+          command: [ "/bin/sh", "-c", "/bin/init.sh" ]
+          volumeMounts:
+            - name: participant-registration
+              mountPath: /bin/init.sh
+              subPath: init.sh
+      volumes:
+        - name: participant-registration
+          configMap:
+            name: consumer-til-registration
+            defaultMode: 0755
+
+      restartPolicy: Never
+  backoffLimit: 10

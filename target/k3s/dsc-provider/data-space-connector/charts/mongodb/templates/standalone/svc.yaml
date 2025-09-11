@@ -1,0 +1,27 @@
+---
+# Source: data-space-connector/charts/mongodb/templates/standalone/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/version: 8.0.10
+    helm.sh/chart: mongodb-16.5.21
+    app.kubernetes.io/component: mongodb
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  publishNotReadyAddresses: false
+  ports:
+    - name: "mongodb"
+      port: 27017
+      targetPort: mongodb
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/component: mongodb

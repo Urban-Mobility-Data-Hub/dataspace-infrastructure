@@ -1,0 +1,81 @@
+---
+# Source: data-space-connector/charts/contract-management/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: contract-management
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: contract-management
+    helm.sh/chart: contract-management-3.2.0
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  application.yaml: |
+    micronaut:
+      http:
+        services:
+          read-timeout: 30s
+          odrl:
+            path: /
+            read-timeout: 30
+            url: http://odrl-pap:8080
+          party:
+            path: /tmf-api/party/v4
+            read-timeout: 30
+            url: http://provider-tm-forum-api-party-catalog:8080
+          product-catalog:
+            path: /tmf-api/productCatalogManagement/v4
+            read-timeout: 30
+            url: http://provider-tm-forum-api-product-catalog:8080
+          product-order:
+            path: /tmf-api/productOrderingManagement/v4
+            read-timeout: 30
+            url: http://provider-tm-forum-api-product-ordering-management:8080
+          quote:
+            path: /tmf-api/quote/v4
+            read-timeout: 30
+            url: http://provider-tm-forum-api-quote:8080
+          rainbow:
+            path: /
+            read-timeout: 30
+            url: http://rainbow:8080
+          service-catalog:
+            path: /tmf-api/serviceCatalogManagement/v4
+            read-timeout: 30
+            url: http://provider-tm-forum-api-service-catalog:8080
+          tmforum-agreement-api:
+            path: /tmf-api/agreementManagement/v4
+            read-timeout: 30
+            url: http://provider-tm-forum-api-agreement:8080
+          trusted-issuers-list:
+            path: ""
+            read-timeout: 30
+            url: http://trusted-issuers-list:8080
+    general:
+      host: contract-management
+      port: 8080
+      til:
+        claims:
+        - roles:
+          - Consumer
+          - Admin
+          target: did:some:service
+        credentialType: OperatorCredential
+      
+    notification:
+      entities:
+        - entityType: "ProductOrder"
+          eventTypes: [ "CREATE", "STATE_CHANGE", "DELETE" ]
+          apiAddress: "http://provider-tm-forum-api-product-ordering-management:8080/tmf-api/productOrderingManagement/v4"
+        - entityType: "ProductOffering"
+          eventTypes: [ "CREATE", "STATE_CHANGE", "DELETE" ]
+          apiAddress: "http://provider-tm-forum-api-product-catalog:8080/tmf-api/productCatalogManagement/v4"
+        - entityType: "Catalog"
+          eventTypes: [ "CREATE", "DELETE", "STATE_CHANGE" ]
+          apiAddress: "http://provider-tm-forum-api-product-catalog:8080/tmf-api/productCatalogManagement/v4"
+        - entityType: "Quote"
+          eventTypes: [ "CREATE", "DELETE", "STATE_CHANGE", "ATTRIBUTE_CHANGE" ]
+          apiAddress: "http://provider-tm-forum-api-quote:8080/tmf-api/quote/v4"

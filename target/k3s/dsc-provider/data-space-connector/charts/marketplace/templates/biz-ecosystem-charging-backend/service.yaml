@@ -1,0 +1,24 @@
+---
+# Source: data-space-connector/charts/marketplace/templates/biz-ecosystem-charging-backend/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-biz-ecosystem-charging-backend
+  namespace: "provider"
+  labels:
+    component: "biz-ecosystem-charging-backend"
+    app: marketplace
+    release: provider
+    chart: marketplace-0.11.21
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8006
+      targetPort: 8006
+      protocol: TCP
+      name: http
+  selector:
+    component: "biz-ecosystem-charging-backend"
+    app: marketplace
+    release: provider

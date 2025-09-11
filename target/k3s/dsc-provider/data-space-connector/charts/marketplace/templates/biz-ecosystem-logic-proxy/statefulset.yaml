@@ -1,0 +1,240 @@
+---
+# Source: data-space-connector/charts/marketplace/templates/biz-ecosystem-logic-proxy/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: provider-biz-ecosystem-logic-proxy
+  namespace: "provider"
+  labels:
+    component: "biz-ecosystem-logic-proxy"
+    app: marketplace
+    release: provider
+    chart: marketplace-0.11.21
+    heritage: Helm
+spec:
+  serviceName: provider-biz-ecosystem-logic-proxy
+  replicas: 1
+  revisionHistoryLimit: 3
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: provider-biz-ecosystem-logic-proxy
+      component: "biz-ecosystem-logic-proxy"
+      app: marketplace
+      release: provider
+  template:
+    metadata:
+      labels:
+        app: provider-biz-ecosystem-logic-proxy
+        
+        component: "biz-ecosystem-logic-proxy"
+        app: marketplace
+        release: provider
+        chart: marketplace-0.11.21
+        heritage: Helm
+    spec:
+      serviceAccountName: ssc
+      initContainers:
+        
+        - name: biz-ecosystem-logic-proxy-wait-for-mongodb
+          image: 'bitnamilegacy/mongodb:3.6.21'
+          imagePullPolicy: "IfNotPresent"
+          command: ['sh', '-c',
+            'while ! mongo --host "mongodb" --eval "printjson(db.serverStatus())"; do echo "Waiting for MongoDB"; ((i++)) && ((i==60)) && break; sleep 5; done;']
+      containers:
+        - name: marketplace-biz-ecosystem-logic-proxy
+          imagePullPolicy: Always
+          image: "fiware/biz-ecosystem-logic-proxy:10.1.1-PRE-5"
+          command:
+            - /prep/prep.sh
+          ports:
+            - name: http
+              containerPort: 8004
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /version
+              port: 8004
+            initialDelaySeconds: 61
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /version
+              port: 8004
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 30
+          volumeMounts:
+          
+            - mountPath: /prep
+              name: bae-prep
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: COLLECT
+              value: "True"
+            - name: BAE_LP_PORT
+              value: "8004"
+            - name: BAE_LP_HOST
+              value: provider-biz-ecosystem-logic-proxy.provider.svc.cluster.local
+            - name: BAE_LP_MONGO_SERVER
+              value: "mongodb"
+            - name: BAE_LP_MONGO_PORT
+              value: "27017"
+            - name: BAE_LP_MONGO_DB
+              value: "belp_db"
+            - name: BAE_LP_MONGO_USER
+              value: "belp"
+            - name: BAE_LP_MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: marketplace-secret
+                  key: "mongodb-root-password"
+            - name: BAE_LP_OAUTH2_ADMIN_ROLE
+              value: "admin"
+            - name: BAE_LP_OAUTH2_SELLER_ROLE
+              value: "seller"
+            - name: BAE_LP_OAUTH2_CUSTOMER_ROLE
+              value: "customer"
+            - name: BAE_LP_OAUTH2_ORG_ADMIN_ROLE
+              value: "orgAdmin"
+            - name: BAE_LP_OAUTH2_PROVIDER
+              value: "vc"
+            - name: BAE_LP_OAUTH2_IS_LEGACY
+              value: "false"
+            - name: BAE_LP_REVENUE_MODEL
+              value: "30"
+            - name: BAE_LP_ENDPOINT_CATALOG_HOST
+              value: provider-tm-forum-api-product-catalog
+            - name: BAE_LP_ENDPOINT_CATALOG_PATH
+              value: /tmf-api/productCatalogManagement/v4
+            - name: BAE_LP_ENDPOINT_CATALOG_PORT
+              value: "8080"
+            - name: BAE_LP_ENDPOINT_INVENTORY_HOST
+              value: provider-tm-forum-api-product-inventory
+            - name: BAE_LP_ENDPOINT_INVENTORY_PATH
+              value: /tmf-api/productInventory/v4
+            - name: BAE_LP_ENDPOINT_INVENTORY_PORT
+              value: "8080"
+            - name: BAE_LP_ENDPOINT_SERVICE_INVENTORY_HOST
+              value: provider-biz-ecosystem-apis.provider.svc.cluster.local
+            - name: BAE_LP_ENDPOINT_SERVICE_INVENTORY_PORT
+              value: "8080"
+            - name: BAE_LP_ENDPOINT_RESOURCE_INVENTORY_HOST
+              value: provider-tm-forum-api-resource-inventory
+            - name: BAE_LP_ENDPOINT_RESOURCE_INVENTORY_PATH
+              value: /tmf-api/resourceInventoryManagement/v4
+            - name: BAE_LP_ENDPOINT_RESOURCE_INVENTORY_PORT
+              value: "8080"
+            - name: BAE_LP_ENDPOINT_ORDERING_HOST
+              value: provider-tm-forum-api-product-ordering-management
+            - name: BAE_LP_ENDPOINT_ORDERING_PATH
+              value: /tmf-api/productOrderingManagement/v4
+            - name: BAE_LP_ENDPOINT_ORDERING_PORT
+              value: "8080"
+            - name: BAE_LP_ENDPOINT_BILLING_HOST
+              value: provider-tm-forum-api-account
+            - name: BAE_LP_ENDPOINT_BILLING_PATH
+              value: /tmf-api/accountManagement/v4
+            - name: BAE_LP_ENDPOINT_BILLING_PORT
+              value: "8080"
+            - name: BAE_LP_ENDPOINT_RESOURCE_HOST
+              value: provider-tm-forum-api-resource-catalog
+            - name: BAE_LP_ENDPOINT_RESOURCE_PATH
+              value: /tmf-api/resourceCatalog/v4
+            - name: BAE_LP_ENDPOINT_RESOURCE_PORT
+              value: "8080"
+            - name: BAE_LP_ENDPOINT_SERVICE_HOST
+              value: provider-tm-forum-api-service-catalog
+            - name: BAE_LP_ENDPOINT_SERVICE_PATH
+              value: /tmf-api/serviceCatalogManagement/v4
+            - name: BAE_LP_ENDPOINT_SERVICE_PORT
+              value: "8080"                   
+            - name: BAE_LP_ENDPOINT_RSS_HOST
+              value: provider-biz-ecosystem-rss.provider.svc.cluster.local
+            - name: BAE_LP_ENDPOINT_RSS_PORT
+              value: "8080"
+            - name: BAE_LP_ENDPOINT_USAGE_HOST
+              value: provider-tm-forum-api-usage-management
+            - name: BAE_LP_ENDPOINT_USAGE_PATH
+              value: /tmf-api/usageManagement/v4
+            - name: BAE_LP_ENDPOINT_USAGE_PORT
+              value: "8080"
+            - name: BAE_LP_ENDPOINT_PARTY_HOST
+              value: provider-tm-forum-api-party-catalog
+            - name: BAE_LP_ENDPOINT_PARTY_PATH
+              value: /tmf-api/party/v4
+            - name: BAE_LP_ENDPOINT_PARTY_PORT
+              value: "8080"  
+            - name: BAE_LP_ENDPOINT_CUSTOMER_HOST
+              value: provider-tm-forum-api-customer-management
+            - name: BAE_LP_ENDPOINT_CUSTOMER_PATH
+              value: /tmf-api/customerManagement/v4
+            - name: BAE_LP_ENDPOINT_CUSTOMER_PORT
+              value: "8080"       
+            - name: BAE_LP_ENDPOINT_CHARGING_HOST
+              value: provider-biz-ecosystem-charging-backend.provider.svc.cluster.local
+            - name: BAE_LP_ENDPOINT_CHARGING_PORT
+              value: "8006"
+            - name: BAE_LP_INDEX_ENGINE
+              value: "elasticsearch"
+            - name: BAE_LP_INDEX_API_VERSION
+              value: "7"
+            - name: BAE_LP_INDEX_URL
+              value: "elasticsearch:9200"
+            - name: BAE_SERVICE_HOST
+              value: "https://marketplace.127.0.0.1.nip.io"
+            - name: BAE_LP_OIDC_ENABLED
+              value: "false"
+            - name: BAE_LP_EXT_LOGIN
+              value: "true"
+            - name: BAE_LP_SHOW_LOCAL_LOGIN
+              value: "false"
+            - name: BAE_LP_ALLOW_LOCAL_EORI
+              value: "false"
+            - name: BAE_LP_EDIT_PARTY
+              value: "true"
+            - name: BAE_LP_PROPAGATE_TOKEN
+              value: "true"
+            - name: BAE_LP_SIOP_ENABLED
+              value: "true"
+            - name: BAE_LP_SIOP_CLIENT_ID
+              value: "marketplace-client"
+            - name: BAE_LP_SIOP_VERIFIER_HOST
+              value: "https://provider-verifier.io"
+            - name: BAE_LP_SIOP_VERIFIER_QRCODE_PATH
+              value: "/api/v2/loginQR"
+            - name: BAE_LP_SIOP_VERIFIER_TOKEN_PATH
+              value: "/token"
+            - name: BAE_LP_SIOP_VERIFIER_JWKS_PATH
+              value: "/.well-known/jwks"
+            - name: BAE_LP_SIOP_CALLBACK_PATH
+              value: https://marketplace.127.0.0.1.nip.io/auth/vc/callback
+            - name: BAE_LP_SIOP_ALLOWED_ROLES
+              value: seller,customer,admin,REPRESENTATIVE,READER,OPERATOR
+            - name: BAE_LP_SIOP_IS_REDIRECTION
+              value: "true"
+            - name: BAE_LP_PURCHASE_ENABLED
+              value: "true"
+            - name: BAE_LP_MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: MONGO_BAE_BELP_PW
+                  name: marketplace-secret-env
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: "0"
+            - name: VC_HTTPS_PROXY
+              value: http://squid-proxy.infra.svc.cluster.local:8888
+      volumes:
+        - configMap:
+            defaultMode: 511
+            name: bae-prep
+          name: bae-prep
+        - name: ccs-init-volume
+          configMap:
+            name: provider-biz-ecosystem-logic-proxy-ccs
+            defaultMode: 0755

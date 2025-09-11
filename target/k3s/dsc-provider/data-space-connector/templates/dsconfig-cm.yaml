@@ -1,0 +1,20 @@
+---
+# Source: data-space-connector/templates/dsconfig-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dsconfig
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+data:
+  data-space-configuration.json: |-
+    {
+      "supported_models": ["https://raw.githubusercontent.com/smart-data-models/dataModel.Consumption/master/ConsumptionPoint/schema.json","https://raw.githubusercontent.com/smart-data-models/dataModel.Consumption/master/ConsumptionCost/schema.json"],
+      "supported_protocols": ["http","https"],
+      "authentication_protocols": ["oid4vp"]
+    }

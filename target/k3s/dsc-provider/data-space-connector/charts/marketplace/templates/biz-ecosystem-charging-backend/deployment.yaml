@@ -1,0 +1,154 @@
+---
+# Source: data-space-connector/charts/marketplace/templates/biz-ecosystem-charging-backend/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: provider-biz-ecosystem-charging-backend
+  namespace: "provider"
+  labels:
+    component: "biz-ecosystem-charging-backend"
+    app: marketplace
+    release: provider
+    chart: marketplace-0.11.21
+    heritage: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      component: "biz-ecosystem-charging-backend"
+      app: marketplace
+      release: provider
+  template:
+    metadata:
+      labels:
+        
+        component: "biz-ecosystem-charging-backend"
+        app: marketplace
+        release: provider
+        chart: marketplace-0.11.21
+        heritage: Helm
+    spec:
+      serviceAccountName: ssc
+      initContainers:
+        
+        - name: biz-ecosystem-charging-backend-wait-for-mongodb
+          image: 'bitnamilegacy/mongodb:3.6.21'
+          imagePullPolicy: "IfNotPresent"
+          command: ['sh', '-c',
+            'while ! mongo --host "mongodb" --eval "printjson(db.serverStatus())"; do echo "Waiting for MongoDB"; ((i++)) && ((i==60)) && break; sleep 5; done;']
+      containers:
+        - name: marketplace-biz-ecosystem-charging-backend
+          imagePullPolicy: IfNotPresent
+          image: "fiware/biz-ecosystem-charging-backend:10.0.1"
+          ports:
+            - name: http
+              containerPort: 8006
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /charging/api/assetManagement/currencyCodes
+              port: 8006
+            initialDelaySeconds: 61
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /charging/api/assetManagement/currencyCodes
+              port: 8006
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 30
+          volumeMounts:
+            - name: plugins
+              mountPath: /opt/business-ecosystem-charging-backend/src/plugins
+            - name: inst-plugins
+              mountPath: /opt/business-ecosystem-charging-backend/src/wstore/asset_manager/resource_plugins/plugins
+            - name: media-assets
+              mountPath: /opt/business-ecosystem-charging-backend/src/media/assets
+            - name: media-bills
+              mountPath: /opt/business-ecosystem-charging-backend/src/media/bills
+          env:
+            - name: BAE_CB_PAYMENT_METHOD
+              value: "None"
+            - name: BAE_CB_MONGO_SERVER
+              value: "mongodb"
+            - name: BAE_CB_MONGO_PORT
+              value: "27017"
+            - name: BAE_CB_MONGO_DB
+              value: "charging_db"
+            - name: BAE_CB_MONGO_USER
+              value: "charging"
+            - name: BAE_CB_MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                   name: provider-biz-ecosystem-charging-backend
+                   key: dbPassword
+            - name: BAE_LP_OAUTH2_ADMIN_ROLE
+              value: "admin"
+            - name: BAE_LP_OAUTH2_SELLER_ROLE
+              value: "seller"
+            - name: BAE_LP_OAUTH2_CUSTOMER_ROLE
+              value: "customer"
+            - name: BAE_CB_EMAIL
+              value: "charging@email.com"
+            - name: BAE_CB_VERIFY_REQUESTS
+              value: "true"
+            - name: BAE_SERVICE_HOST
+              value: "https://marketplace.127.0.0.1.nip.io"
+            - name: BAE_CB_LOCAL_SITE
+              value: http://provider-biz-ecosystem-charging-backend.provider.svc.cluster.local:8006
+            - name: LOGLEVEL
+              value: "debug"  
+            - name: BAE_CB_MAX_UPLOAD_SIZE
+              value: "5242880"
+            - name: BAE_CB_CATALOG
+              value: http://provider-tm-forum-api-product-catalog:8080/tmf-api/productCatalogManagement/v4/
+            - name: BAE_CB_SERVICE_CATALOG
+              value: http://provider-tm-forum-api-service-catalog:8080/tmf-api/serviceCatalogManagement/v4/
+            - name: BAE_CB_RESOURCE_CATALOG
+              value: http://provider-tm-forum-api-resource-catalog:8080/tmf-api/resourceCatalog/v4/
+            - name: BAE_CB_INVENTORY
+              value: http://provider-tm-forum-api-product-inventory:8080/tmf-api/productInventory/v4/
+            - name: BAE_CB_SERVICE_INVENTORY
+              value: http://provider-biz-ecosystem-apis.provider.svc.cluster.local:8080
+            - name: BAE_CB_RESOURCE_INVENTORY
+              value: http://provider-tm-forum-api-resource-inventory:8080/tmf-api/resourceInventoryManagement/v4/
+            - name: BAE_CB_ORDERING
+              value: http://provider-tm-forum-api-product-ordering-management:8080/tmf-api/productOrderingManagement/v4/
+            - name: BAE_CB_BILLING
+              value: http://provider-tm-forum-api-account:8080/tmf-api/accountManagement/v4/
+            - name: BAE_CB_USAGE
+              value: http://provider-tm-forum-api-usage-management:8080/tmf-api/usageManagement/v4/
+            - name: BAE_CB_RSS
+              value: http://provider-biz-ecosystem-rss.provider.svc.cluster.local:8080/DSRevenueSharing
+            - name: BAE_CB_AUTHORIZE_SERVICE
+              value: http://provider-biz-ecosystem-logic-proxy.provider.svc.cluster.local:8004/authorizeService/apiKeys
+            - name: BAE_CB_PROPAGATE_TOKEN
+              value: "true"
+            - name: BAE_CB_MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: MONGO_BAE_CHARGING_PW
+                  name: marketplace-secret-env
+            - name: BAE_CB_CUSTOMER_BILL
+              value: http://provider-tm-forum-api-customer-bill-management:8080/tmf-api/customerBillManagement/v4
+      volumes:
+        - name: plugins
+          emptyDir: {}
+        - name: inst-plugins
+          emptyDir: {}
+        - name: media-assets
+          emptyDir: {}
+        - name: media-bills
+          emptyDir: {}
+        - name: gcs-secret
+          secret:
+            secretName: gcs-secret

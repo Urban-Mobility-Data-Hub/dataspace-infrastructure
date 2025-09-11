@@ -1,0 +1,112 @@
+---
+# Source: data-space-connector/charts/odrl-pap/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: odrl-pap
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: odrl-pap
+    helm.sh/chart: odrl-pap-2.0.2
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "0.1.4"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: odrl-pap
+      app.kubernetes.io/instance: provider
+  template:
+    metadata:
+      labels:
+        
+        app.kubernetes.io/name: odrl-pap
+        helm.sh/chart: odrl-pap-2.0.2
+        app.kubernetes.io/instance: provider
+        app.kubernetes.io/version: "0.1.4"
+        app.kubernetes.io/managed-by: Helm
+    spec: 
+      serviceAccountName: default
+      initContainers:
+        - args:
+          - -ec
+          - |
+            #!/bin/bash
+            apt-get -y update; apt-get -y install wget
+            cd /did-material
+            wget http://did-helper:3002/did-material/did.env
+          command:
+          - /bin/bash
+          image: ubuntu
+          name: get-did
+          volumeMounts:
+          - mountPath: /did-material
+            name: did-material
+      containers:
+        - name: odrl-pap
+          imagePullPolicy: IfNotPresent
+          image: "quay.io/fiware/odrl-pap:1.0.1"
+          command:
+            - /bin/sh
+          args:
+            - -ec
+            - |
+              #!/bin/sh
+              source /did-material/did.env
+              export GENERAL_ORGANIZATION_DID=$DID
+              ./application -Dquarkus.http.host=0.0.0.0
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: http-health
+              containerPort: 9090
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /q/health/live
+              port: http-health
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /q/health/ready
+              port: http-health
+            initialDelaySeconds: 31
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          env:
+            - name: QUARKUS_HTTP_PORT
+              value: "8080"
+            - name: QUARKUS_MANAGEMENT_PORT
+              value: "9090"
+            - name: QUARKUS_MICROMETER_EXPORT_PROMETHEUS_ENABLED
+              value: "true"
+            - name: QUARKUS_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: QUARKUS_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: postgres-admin-password
+            - name: QUARKUS_DATASOURCE_JDBC_URL
+              value: "jdbc:postgresql://postgresql:5432/pap"
+          volumeMounts:
+            - mountPath: /did-material
+              name: did-material
+          resources:
+            null
+      volumes:
+        - emptyDir: {}
+          name: did-material

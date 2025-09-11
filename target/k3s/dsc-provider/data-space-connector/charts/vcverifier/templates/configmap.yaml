@@ -1,0 +1,51 @@
+---
+# Source: data-space-connector/charts/vcverifier/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: verifier
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/name: vcverifier
+    helm.sh/chart: vcverifier-4.1.2
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "6.1.1"
+    app.kubernetes.io/managed-by: Helm
+data:
+  server.yaml: |-
+    server:
+      host: https://provider-verifier.io
+      port: 3000
+      staticDir: views/static
+      templateDir: views/
+
+    m2m:
+      authEnabled: false
+      keyType: RSAPS256
+      
+    logging:
+      jsonLogging: true
+      level: DEBUG
+      logRequests: true
+      pathsToSkip:
+      - /metrics
+      - /health
+
+    verifier:
+      clientIdentification:
+        certificatePath: /certificate/client-chain-bundle.cert.pem
+        id: x509_san_dns:provider-verifier.io
+        keyPath: /signing-key/client.key.pem
+        requestKeyAlgorithm: ES256
+      did: did:web:marketplace.io
+      sessionExpiry: 30
+      supportedModes:
+      - byValue
+      - byReference
+      tirAddress: http://tir.127.0.0.1.nip.io/
+      validationMode: none
+    
+    configRepo:
+      configEndpoint: http://credentials-config-service:8080
+
+    elsi:

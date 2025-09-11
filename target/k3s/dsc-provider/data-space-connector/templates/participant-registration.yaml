@@ -1,0 +1,28 @@
+---
+# Source: data-space-connector/templates/participant-registration.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: provider-til-registration
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+data:
+  init.sh: |-
+    # Prep script
+    export $(curl -f -X GET did-helper:3002/did-material/did.env)
+
+    # credentials config service registration
+    curl -v -X 'POST' \
+      'http://trusted-issuers-list.provider.svc.cluster.local:8080/issuer' \
+      -H 'accept: */*' \
+      -H 'Content-Type: application/json' \
+      -d "{
+      \"did\": \"${DID}\",
+      \"credentials\": [{
+        \"credentialsType\": \"LegalPersonCredential\"
+      }]
+    }"

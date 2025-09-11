@@ -1,0 +1,28 @@
+---
+# Source: data-space-connector/charts/marketplace/templates/biz-ecosystem-logic-proxy/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: provider-biz-ecosystem-logic-proxy
+  namespace: "provider"
+  labels:
+    
+    component: "biz-ecosystem-logic-proxy"
+    app: marketplace
+    release: provider
+    chart: marketplace-0.11.21
+    heritage: Helm
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  rules:
+    - host: "marketplace.127.0.0.1.nip.io"
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: provider-biz-ecosystem-logic-proxy
+              port: 
+                number: 8004

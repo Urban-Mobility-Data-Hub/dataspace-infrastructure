@@ -1,0 +1,48 @@
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/envoy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: provider-tm-forum-api-envoy
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tm-forum-api-envoy
+      app.kubernetes.io/instance: provider
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tm-forum-api-envoy
+        app.kubernetes.io/instance: provider
+    spec: 
+      containers:
+        - name: envoy-proxy
+          imagePullPolicy:  IfNotPresent
+          image: "envoyproxy/envoy:distroless-v1.27-latest"
+          args: 
+            - -c /config/envoy-config.yaml
+            - -l debug
+          ports:
+            - name: http
+              containerPort: 10000
+              protocol: TCP    
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          configMap:
+            name: provider-tm-forum-api-envoy

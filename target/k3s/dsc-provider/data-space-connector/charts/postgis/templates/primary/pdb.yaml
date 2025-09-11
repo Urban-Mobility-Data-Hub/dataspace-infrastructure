@@ -1,0 +1,21 @@
+---
+# Source: data-space-connector/charts/postgis/templates/primary/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: data-service-postgis
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: data-service-postgis
+    app.kubernetes.io/version: 17.6.0
+    helm.sh/chart: postgis-16.7.27
+    app.kubernetes.io/component: primary
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: provider
+      app.kubernetes.io/name: data-service-postgis
+      app.kubernetes.io/component: primary

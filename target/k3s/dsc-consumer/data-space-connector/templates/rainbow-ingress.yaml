@@ -1,0 +1,24 @@
+---
+# Source: data-space-connector/templates/rainbow-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rainbow
+  namespace: "consumer"
+  labels:
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: consumer
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+    - host: "rainbow-consumer.127.0.0.1.nip.io"
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: rainbow
+              port:
+                number: 8080

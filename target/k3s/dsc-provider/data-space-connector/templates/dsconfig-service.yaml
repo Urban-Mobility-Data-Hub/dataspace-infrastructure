@@ -1,0 +1,23 @@
+---
+# Source: data-space-connector/templates/dsconfig-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: dsconfig
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3002
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: dsconfig
+    app.kubernetes.io/instance: provider

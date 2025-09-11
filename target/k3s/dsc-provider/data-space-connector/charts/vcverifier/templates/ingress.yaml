@@ -1,0 +1,28 @@
+---
+# Source: data-space-connector/charts/vcverifier/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: verifier
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: vcverifier
+    helm.sh/chart: vcverifier-4.1.2
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "6.1.1"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  rules:
+    - host: "provider-verifier.io"
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: verifier
+              port: 
+                number: 3000

@@ -1,0 +1,23 @@
+---
+# Source: data-space-connector/templates/rainbow-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: rainbow
+  namespace: "consumer"
+  labels:
+    
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: consumer
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: rainbow
+    app.kubernetes.io/instance: consumer

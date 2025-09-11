@@ -1,0 +1,23 @@
+---
+# Source: data-space-connector/charts/apisix/templates/dashboard/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: provider-apisix-dashboard
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: apisix
+    app.kubernetes.io/version: 3.0.1
+    helm.sh/chart: apisix-3.5.1
+    app.kubernetes.io/part-of: apisix
+    app.kubernetes.io/component: dashboard
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: provider
+      app.kubernetes.io/name: apisix
+      app.kubernetes.io/part-of: apisix
+      app.kubernetes.io/component: dashboard

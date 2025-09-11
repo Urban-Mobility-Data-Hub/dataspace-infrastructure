@@ -1,0 +1,28 @@
+---
+# Source: data-space-connector/templates/tpp-policy.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: tpp-policy
+  namespace: "consumer"
+  labels:
+    
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: consumer
+    app.kubernetes.io/managed-by: Helm
+data:
+  tpp.rego: |-
+    package tpp
+    
+    import rego.v1
+    import data.policy.main
+
+    default allow := false
+
+    host = ""
+    path = "/transfers"
+    url = sprintf("%v/%v/%v", [host, path, input.request.headers["transferid"]])
+
+    response := http.send({"method": "get", "url": url})
+    allow if response.body["dspace:state"] == "dspace:STARTED"

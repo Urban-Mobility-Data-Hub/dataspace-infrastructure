@@ -1,0 +1,22 @@
+---
+# Source: data-space-connector/charts/apisix/templates/data-plane/extra-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: provider-apisix-data-plane-extra
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: apisix
+    app.kubernetes.io/version: 3.10.0
+    helm.sh/chart: apisix-3.5.1
+    app.kubernetes.io/part-of: apisix
+    app.kubernetes.io/component: data-plane
+data:
+  01_extra-config.yaml: |
+    apisix:
+      extra_lua_path: /extra/apisix/plugins/?.lua
+    deployment:
+      role_data_plane:
+        config_provider: yaml

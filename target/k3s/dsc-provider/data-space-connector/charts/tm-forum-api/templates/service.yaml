@@ -1,0 +1,308 @@
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-party-catalog
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-party-catalog
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-customer-bill-management
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-customer-bill-management
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-customer-management
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-customer-management
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-product-catalog
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-product-catalog
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-product-inventory
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-product-inventory
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-product-ordering-management
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-product-ordering-management
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-resource-catalog
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-resource-catalog
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-resource-function-activation
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-resource-function-activation
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-resource-inventory
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-resource-inventory
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-service-catalog
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-service-catalog
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-agreement
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-agreement
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-usage-management
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-usage-management
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-quote
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-quote
+    app.kubernetes.io/instance: provider
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-tm-forum-api-account
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-account
+    app.kubernetes.io/instance: provider

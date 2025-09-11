@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="maven-antrun-" default="main"  >
+<target name="main">
+  <exec executable="/bin/bash">
+    <arg value="${project.parent.basedir}/helpers/certs/generate-certs.sh"/>
+    <arg value="${project.parent.basedir}/k3s"/>
+  </exec>
+</target>
+</project>

@@ -1,0 +1,88 @@
+---
+# Source: data-space-connector/charts/contract-management/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contract-management
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: contract-management
+    helm.sh/chart: contract-management-3.2.0
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: contract-management
+      app.kubernetes.io/instance: provider
+  template:
+    metadata:
+      labels:
+        
+        app.kubernetes.io/name: contract-management
+        helm.sh/chart: contract-management-3.2.0
+        app.kubernetes.io/instance: provider
+        app.kubernetes.io/version: "3.0.0"
+        app.kubernetes.io/managed-by: Helm
+    spec: 
+      serviceAccountName: default
+      containers:
+        - name: contract-management
+          imagePullPolicy: IfNotPresent
+          image: "quay.io/fiware/contract-management:3.2.0"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: http-health
+              containerPort: 9090
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 31
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          env:
+            - name: ENDPOINTS_ALL_PORT
+              value: "9090"
+            - name: ENDPOINTS_HEALTH_ENABLED
+              value: "true"
+            - name: MICRONAUT_SERVER_PORT
+              value: "8080"
+            - name: ENDPOINTS_METRICS_ENABLED
+              value: "true"
+            - name: MICRONAUT_CONFIG_FILES
+              value: "/application.yaml"
+          volumeMounts:
+            - name: application-yaml
+              mountPath: /application.yaml
+              subPath: application.yaml
+          resources:
+            null
+      volumes:
+        - name: application-yaml
+          configMap:
+            name: contract-management
+            items:
+              - key: application.yaml
+                path: application.yaml

@@ -1,0 +1,33 @@
+---
+# Source: data-space-connector/charts/keycloak/templates/configmap-env-vars.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: provider-keycloak-env-vars
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.1.5
+    helm.sh/chart: keycloak-24.5.2
+    app.kubernetes.io/component: keycloak
+data:
+  KC_BOOTSTRAP_ADMIN_USERNAME: "keycloak-admin"
+  KEYCLOAK_HTTP_PORT: "8080"
+  KEYCLOAK_PROXY_HEADERS: "xforwarded"
+  KEYCLOAK_HOSTNAME: |-
+    https://keycloak-provider.127.0.0.1.nip.io/
+  KEYCLOAK_HOSTNAME_STRICT: "false"
+  KEYCLOAK_ENABLE_STATISTICS: "false"
+  KEYCLOAK_DATABASE_HOST: "postgresql"
+  KEYCLOAK_DATABASE_PORT: "5432"
+  KEYCLOAK_DATABASE_NAME: "keycloak"
+  KEYCLOAK_DATABASE_USER: "postgres"
+  KEYCLOAK_PRODUCTION: "false"
+  KEYCLOAK_ENABLE_HTTPS: "false"
+  KEYCLOAK_CACHE_TYPE: "ispn"
+  KEYCLOAK_CACHE_STACK: "kubernetes"
+  JAVA_OPTS_APPEND: "-Djgroups.dns.query=provider-keycloak-headless.provider.svc.cluster.local"
+  KEYCLOAK_LOG_OUTPUT: "default"
+  KEYCLOAK_LOG_LEVEL: "INFO"

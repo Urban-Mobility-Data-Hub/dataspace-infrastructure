@@ -1,0 +1,34 @@
+---
+# Source: data-space-connector/charts/apisix/templates/control-plane/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-apisix-control-plane
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: apisix
+    app.kubernetes.io/version: 3.10.0
+    helm.sh/chart: apisix-3.5.1
+    app.kubernetes.io/part-of: apisix
+    app.kubernetes.io/component: control-plane
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: https-admin-api
+      port: 9180
+      protocol: TCP
+      nodePort: null
+      targetPort: https-admin-api
+    - name: https-cfg-srv
+      port: 9280
+      protocol: TCP
+      nodePort: null
+      targetPort: https-cfg-srv
+  selector:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/name: apisix
+    app.kubernetes.io/part-of: apisix
+    app.kubernetes.io/component: control-plane

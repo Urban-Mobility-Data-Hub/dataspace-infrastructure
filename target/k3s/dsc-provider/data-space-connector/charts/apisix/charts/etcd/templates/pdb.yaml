@@ -1,0 +1,21 @@
+---
+# Source: data-space-connector/charts/apisix/charts/etcd/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: provider-etcd
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: etcd
+    app.kubernetes.io/version: 3.5.16
+    helm.sh/chart: etcd-10.2.18
+    app.kubernetes.io/component: etcd
+spec:
+  minAvailable: 51%
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: provider
+      app.kubernetes.io/name: etcd
+      app.kubernetes.io/component: etcd

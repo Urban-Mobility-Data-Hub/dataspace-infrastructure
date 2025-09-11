@@ -1,0 +1,24 @@
+---
+# Source: data-space-connector/charts/credentials-config-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: credentials-config-service
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: credentials-config-service
+    helm.sh/chart: credentials-config-service-2.1.12
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: credentials-config-service
+    app.kubernetes.io/instance: provider

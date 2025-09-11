@@ -1,0 +1,25 @@
+---
+# Source: data-space-connector/templates/did-key-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: did-helper
+  namespace: "consumer"
+  labels:
+    
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: consumer
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+    - host: did-consumer.127.0.0.1.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: did-helper
+                port:
+                  name: http

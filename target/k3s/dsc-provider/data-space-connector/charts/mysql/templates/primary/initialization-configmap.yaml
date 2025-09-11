@@ -1,0 +1,19 @@
+---
+# Source: data-space-connector/charts/mysql/templates/primary/initialization-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentication-mysql-init-scripts
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/version: 8.4.4
+    helm.sh/chart: mysql-12.2.2
+    app.kubernetes.io/part-of: mysql
+    app.kubernetes.io/component: primary
+data:
+  create.sql: |
+    CREATE DATABASE tildb;
+    CREATE DATABASE ccsdb;

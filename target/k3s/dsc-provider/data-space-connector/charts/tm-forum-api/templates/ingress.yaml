@@ -1,0 +1,115 @@
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: provider-tm-forum-api
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+  - host: "tm-forum-api.127.0.0.1.nip.io"
+    http:
+      paths:
+      - path: /tmf-api/party/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-party-catalog
+            port:
+              number: 8080
+      - path: /tmf-api/customerBillManagement/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-customer-bill-management
+            port:
+              number: 8080
+      - path: /tmf-api/customerManagement/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-customer-management
+            port:
+              number: 8080
+      - path: /tmf-api/productCatalogManagement/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-product-catalog
+            port:
+              number: 8080
+      - path: /tmf-api/productInventory/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-product-inventory
+            port:
+              number: 8080
+      - path: /tmf-api/productOrderingManagement/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-product-ordering-management
+            port:
+              number: 8080
+      - path: /tmf-api/resourceCatalog/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-resource-catalog
+            port:
+              number: 8080
+      - path: /tmf-api/resourceFunctionActivation/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-resource-function-activation
+            port:
+              number: 8080
+      - path: /tmf-api/resourceInventoryManagement/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-resource-inventory
+            port:
+              number: 8080
+      - path: /tmf-api/serviceCatalogManagement/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-service-catalog
+            port:
+              number: 8080
+      - path: /tmf-api/agreementManagement/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-agreement
+            port:
+              number: 8080
+      - path: /tmf-api/usageManagement/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-usage-management
+            port:
+              number: 8080
+      - path: /tmf-api/quote/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-quote
+            port:
+              number: 8080
+      - path: /tmf-api/accountManagement/v4
+        pathType: Prefix
+        backend:
+          service:
+            name: provider-tm-forum-api-account
+            port:
+              number: 8080

@@ -26,10 +26,12 @@ mongodb:
 postgresql:
   primary:
     persistence:
-      enabled: false
+      enabled: true
+      storageClass: local-path
   readReplicas:
     persistence:
-      enabled: false
+      enabled: true
+      storageClass: local-path
 
 keycloak:
   ingress:

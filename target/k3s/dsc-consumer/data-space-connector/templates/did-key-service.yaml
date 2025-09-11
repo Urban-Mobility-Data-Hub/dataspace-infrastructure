@@ -1,0 +1,23 @@
+---
+# Source: data-space-connector/templates/did-key-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: did-helper
+  namespace: "consumer"
+  labels:
+    
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: consumer
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3001
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: did-helper
+    app.kubernetes.io/instance: consumer

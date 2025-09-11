@@ -1,0 +1,57 @@
+---
+# Source: data-space-connector/charts/credentials-config-service/templates/registration-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: credentials-config-service-registration
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: credentials-config-service
+    helm.sh/chart: credentials-config-service-2.1.12
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+data:
+  init.sh: |-
+    set -e  # Exit on error
+    # Prep script
+    export $(curl -f -X GET did-helper:3002/did-material/did.env)
+  
+    # credentials config service registration
+
+    curl -f -X 'POST' \
+      'http://credentials-config-service:8080/service' \
+      -H 'accept: */*' \
+      -H 'Content-Type: application/json' \
+      -d @- <<EOF
+    {
+      "id": "${DID}",
+      "defaultOidcScope": "openid learcredential",
+      "oidcScopes": {"openid learcredential":{"credentials":[{"jwtInclusion":{"enabled":true,"fullInclusion":true},"trustedIssuersLists":["http://trusted-issuers-list:8080"],"trustedParticipantsLists":["http://tir.127.0.0.1.nip.io"],"type":"LegalPersonCredential"}],"presentationDefinition":{"format":{"vc+sd-jwt":{"alg":["ES256"]}},"id":"pd","input_descriptors":[{"constraints":{"fields":[{"filter":{"const":"LegalPersonCredential"},"id":"vct","path":["$.vct"]},{"id":"subject","path":["$.firstName"]},{"id":"roles","path":["$.roles"]}]},"format":{"vc+sd-jwt":{"alg":["ES256"]}},"id":"descriptor"}]}}}
+    }
+    EOF
+
+    curl -f -X 'POST' \
+      'http://credentials-config-service:8080/service' \
+      -H 'accept: */*' \
+      -H 'Content-Type: application/json' \
+      -d @- <<EOF
+    {
+      "id": "data-service",
+      "defaultOidcScope": "default",
+      "oidcScopes": {"default":{"credentials":[{"jwtInclusion":{"enabled":true,"fullInclusion":true},"trustedIssuersLists":["http://trusted-issuers-list:8080"],"trustedParticipantsLists":["http://tir.127.0.0.1.nip.io"],"type":"UserCredential"}]},"operator":{"credentials":[{"jwtInclusion":{"enabled":true,"fullInclusion":true},"trustedIssuersLists":["http://trusted-issuers-list:8080"],"trustedParticipantsLists":["http://tir.127.0.0.1.nip.io"],"type":"OperatorCredential"}]}}
+    }
+    EOF
+
+    curl -f -X 'POST' \
+      'http://credentials-config-service:8080/service' \
+      -H 'accept: */*' \
+      -H 'Content-Type: application/json' \
+      -d @- <<EOF
+    {
+      "id": "tpp-service",
+      "defaultOidcScope": "operator",
+      "oidcScopes": {"operator":{"credentials":[{"jwtInclusion":{"enabled":true,"fullInclusion":true},"trustedIssuersLists":["http://trusted-issuers-list:8080"],"trustedParticipantsLists":["http://tir.127.0.0.1.nip.io"],"type":"OperatorCredential"}]}}
+    }
+    EOF

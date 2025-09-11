@@ -1,0 +1,18 @@
+---
+# Source: data-space-connector/templates/bae-prep-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bae-prep
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+data:
+  prep.sh: "#!/bin/bash\n\nexport $(curl -f -X GET did-helper:3002/did-material/did.env)\nexport
+    BAE_LP_SIOP_CLIENT_ID=$(echo ${DID})\n\nwget http://did-helper:3002/did-material/private-key.pem\nexport
+    BAE_LP_SIOP_PRIVATE_KEY=$(openssl ec -in private-key.pem -noout -text | grep 'priv:'
+    -A 3 | tail -n +2 | tr -d ':\\n ') \necho ${BAE_LP_SIOP_PRIVATE_KEY}\n/entrypoint.sh"

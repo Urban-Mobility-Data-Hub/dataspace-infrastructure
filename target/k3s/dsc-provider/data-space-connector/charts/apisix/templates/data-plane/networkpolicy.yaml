@@ -1,0 +1,33 @@
+---
+# Source: data-space-connector/charts/apisix/templates/data-plane/networkpolicy.yaml
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: provider-apisix-data-plane
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: apisix
+    app.kubernetes.io/version: 3.10.0
+    helm.sh/chart: apisix-3.5.1
+    app.kubernetes.io/part-of: apisix
+    app.kubernetes.io/component: data-plane
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: provider
+      app.kubernetes.io/name: apisix
+      app.kubernetes.io/part-of: apisix
+      app.kubernetes.io/component: data-plane
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}
+  ingress:
+    - ports:
+        - port: 9080
+        - port: 9443
+        - port: 9090
+        - port: 9099

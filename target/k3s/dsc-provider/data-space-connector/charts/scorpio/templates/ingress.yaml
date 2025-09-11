@@ -1,0 +1,26 @@
+---
+# Source: data-space-connector/charts/scorpio/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: data-service-scorpio
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: scorpio-0.4.7
+    app.kubernetes.io/name: scorpio
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "2.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+  - host: "scorpio-provider.127.0.0.1.nip.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: data-service-scorpio
+            port:
+              number: 9090

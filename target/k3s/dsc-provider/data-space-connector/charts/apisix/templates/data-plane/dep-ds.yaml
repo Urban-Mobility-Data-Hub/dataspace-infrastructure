@@ -1,0 +1,313 @@
+---
+# Source: data-space-connector/charts/apisix/templates/data-plane/dep-ds.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: provider-apisix-data-plane
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: apisix
+    app.kubernetes.io/version: 3.10.0
+    helm.sh/chart: apisix-3.5.1
+    app.kubernetes.io/part-of: apisix
+    app.kubernetes.io/component: data-plane
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: provider
+      app.kubernetes.io/name: apisix
+      app.kubernetes.io/part-of: apisix
+      app.kubernetes.io/component: data-plane
+  template:
+    metadata:
+      annotations:
+        checksum/config: 98aedadb47d48bf723736a4de40fc30099effb0737106c9385cd9a4d06ebb862
+        checksum/config-extra: c30d31dc5dfad63c55880080f5972bfb455bab11215c68c2ccf814d9eabed303
+        checksum/secret: db5de76ba3e09bb65076b27639a6b6d0f2f7c326ae67654488592b57686d4c11
+      labels:
+        app.kubernetes.io/instance: provider
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: apisix
+        app.kubernetes.io/version: 3.10.0
+        helm.sh/chart: apisix-3.5.1
+        app.kubernetes.io/part-of: apisix
+        app.kubernetes.io/component: data-plane
+    spec:
+      serviceAccountName: provider-apisix-data-plane
+      
+      automountServiceAccountToken: true
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: provider
+                    app.kubernetes.io/name: apisix
+                    app.kubernetes.io/component: data-plane
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      initContainers:
+        - name: wait-for-control-plane
+          image: docker.io/bitnami/os-shell:12-debian-12-r30
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - bash
+            - -ec
+            - |
+              #!/bin/bash
+              retry_while() {
+                local -r cmd="${1:?cmd is missing}"
+                local -r retries="${2:-12}"
+                local -r sleep_time="${3:-5}"
+                local return_value=1
+        
+                read -r -a command <<< "$cmd"
+                for ((i = 1 ; i <= retries ; i+=1 )); do
+                    "${command[@]}" && return_value=0 && break
+                    sleep "$sleep_time"
+                done
+                return $return_value
+              }
+        
+              host="https://provider-apisix-control-plane:9180"
+        
+              check_control_plane() {
+                  if curl --max-time 5 -k -I "$host"; then
+                     return 0
+                  else
+                     return 1
+                  fi
+              }
+        
+              echo "Checking connection to $host"
+              if retry_while "check_control_plane"; then
+                  echo "Connected to $host"
+              else
+                  echo "Error connecting to $host"
+                  exit 1
+              fi
+        
+              echo "Connection success"
+              exit 0
+        # This init container renders and merges the APISIX configuration files, as well
+        # as preparing the Nginx server. We need to use a volume because we're working with
+        # ReadOnlyRootFilesystem
+        - name: prepare-apisix
+          image: docker.io/bitnami/apisix:3.10.0-debian-12-r2
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - bash
+            - -ec
+            - |
+              #!/bin/bash
+              cp -R /opt/bitnami/apisix/conf /usr/local/apisix
+              ln -sf /opt/bitnami/apisix/deps /usr/local/apisix
+              ln -sf /opt/bitnami/apisix/openresty/luajit/share/lua/*/apisix /usr/local/apisix
+              mkdir -p /usr/local/apisix/logs
+              # Build final config.yaml with the sections of the different files
+              find /bitnami/apisix/conf -type f -name *.yaml -print0 | sort -z | xargs -0 yq eval-all '. as $item ireduce ({}; . * $item )' > /usr/local/apisix/conf/pre-render-config.yaml
+              render-template /usr/local/apisix/conf/pre-render-config.yaml > /usr/local/apisix/conf/config.yaml
+              rm /usr/local/apisix/conf/pre-render-config.yaml
+              chmod 644 /usr/local/apisix/conf/config.yaml
+              apisix init
+              # The path is hardcoded in the conf so we need to copy them to the server folder
+              cp /bitnami/certs/tls.crt /usr/local/apisix/conf/cert/ssl_PLACE_HOLDER.crt
+              cp /bitnami/certs/tls.key /usr/local/apisix/conf/cert/ssl_PLACE_HOLDER.key
+          env:
+            - name: BITNAMI_DEBUG
+              value: "true"
+            - name: APISIX_ADMIN_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: provider-apisix-control-plane-api-token
+                  key: admin-token
+            - name: APISIX_VIEWER_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: provider-apisix-control-plane-api-token
+                  key: viewer-token
+          envFrom:
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /usr/local/apisix
+              subPath: app-tmp-dir
+            - name: config
+              mountPath: /bitnami/apisix/conf/00_default
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: extra-config
+              mountPath: /bitnami/apisix/conf/01_extra
+            - name: certs
+              mountPath: /bitnami/certs
+      containers:
+        - name: apisix
+          image: docker.io/bitnami/apisix:3.10.0-debian-12-r2
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - openresty
+          args:
+            - -p
+            - /usr/local/apisix
+            - -g
+            - "daemon off;"
+          env:
+          envFrom:
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 2Gi
+              memory: 768Mi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 50Mi
+              memory: 512Mi
+          ports:
+            - name: http
+              containerPort: 9080
+            - name: https
+              containerPort: 9443
+            - name: http-control
+              containerPort: 9090
+          livenessProbe:
+            failureThreshold: 5
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            tcpSocket:
+              port: http-control
+          readinessProbe:
+            failureThreshold: 5
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: /v1/healthcheck
+              port: http-control
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /usr/local/apisix
+              subPath: app-tmp-dir
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: certs
+              mountPath: /bitnami/certs
+            - name: control-plane-certs
+              mountPath: /etc/ssl/certs/ca.crt
+              subPath: ca.crt
+            - mountPath: /usr/local/apisix/conf/apisix.yaml
+              name: routes
+              subPath: apisix.yaml
+            - mountPath: /usr/local/apisix/apisix/plugins/opa/helper.lua
+              name: opa-lua
+              subPath: helper.lua
+            - mountPath: /usr/local/apisix/apisix/plugins/opa.lua
+              name: opa-lua
+              subPath: opa.lua
+        - args:
+          - run
+          - --ignore=.*
+          - --server
+          - -l
+          - debug
+          - -c
+          - /config/opa.yaml
+          - --addr
+          - 0.0.0.0:8181
+          - /tpp/tpp.rego
+          image: openpolicyagent/opa:1.2.0
+          imagePullPolicy: IfNotPresent
+          name: open-policy-agent
+          ports:
+          - containerPort: 8181
+            name: http
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /config
+            name: opa-config
+          - mountPath: /tpp
+            name: tpp-policy
+      volumes:
+        - name: config
+          configMap:
+            name: provider-apisix-data-plane-default
+        - name: extra-config
+          configMap:
+            name: provider-apisix-data-plane-extra
+        - name: certs
+          secret:
+            secretName: provider-apisix-data-plane-tls
+        - name: empty-dir
+          emptyDir: {}
+        - name: control-plane-certs
+          secret:
+            secretName: provider-apisix-control-plane-tls
+        - configMap:
+            name: apisix-routes
+          name: routes
+        - configMap:
+            name: opa-config
+          name: opa-config
+        - configMap:
+            name: opa-lua
+          name: opa-lua
+        - configMap:
+            name: tpp-policy
+          name: tpp-policy

@@ -1,0 +1,86 @@
+---
+# Source: data-space-connector/charts/apisix/templates/control-plane/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: provider-apisix-control-plane-default
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: apisix
+    app.kubernetes.io/version: 3.10.0
+    helm.sh/chart: apisix-3.5.1
+    app.kubernetes.io/part-of: apisix
+    app.kubernetes.io/component: control-plane
+data:
+  config.yaml: |
+    
+    nginx_config:
+      error_log: /dev/stderr
+      stream:
+        access_log: /dev/stdout
+      http:
+        access_log: /dev/stdout
+      http_configuration_snippet: |
+        proxy_buffering off;
+    apisix:
+      control:
+        ip: 0.0.0.0
+        port: 9090
+    deployment:
+      role: control_plane
+      role_control_plane:
+          config_provider: etcd
+          conf_server:
+            listen: 0.0.0.0:9280
+            cert: /bitnami/certs/tls.crt
+            cert_key: /bitnami/certs/tls.key
+      etcd:
+        host:
+          - http://provider-etcd-0.provider-etcd-headless:2379
+          - http://provider-etcd-1.provider-etcd-headless:2379
+          - http://provider-etcd-2.provider-etcd-headless:2379
+        prefix: /apisix
+        timeout: 30
+        use_grpc: false
+        startup_retry: 60
+      certs:
+        cert: /bitnami/certs/tls.crt
+        cert_key: /bitnami/certs/tls.key
+        client_ca_cert: /bitnami/certs/ca.crt
+      admin:
+        https_admin: true
+        admin_api_mtls:
+          admin_ssl_cert: /bitnami/certs/tls.crt
+          admin_ssl_cert_key: /bitnami/certs/tls.key
+    
+        allow_admin:
+          - 0.0.0.0/0
+    
+        admin_key:
+          - name: admin
+            key: "{{APISIX_ADMIN_API_TOKEN}}"
+            role: admin
+          - name: viewer
+            key: "{{APISIX_VIEWER_API_TOKEN}}"
+            role: viewer
+        admin_listen:
+            port: 9180
+        enable_admin_cors: true         # Admin API support CORS response headers.
+    discovery:
+      kubernetes:
+        service:
+          schema: https #default https
+    
+          # apiserver host, options [ipv4, ipv6, domain, environment variable]
+          host: ${KUBERNETES_SERVICE_HOST}
+    
+          # apiserver port, options [port number, environment variable]
+          port: ${KUBERNETES_SERVICE_PORT}
+    
+        client:
+          # serviceaccount token or token_file
+          token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    
+        default_weight: 50 # weight assigned to each discovered endpoint. default 50, minimum 0

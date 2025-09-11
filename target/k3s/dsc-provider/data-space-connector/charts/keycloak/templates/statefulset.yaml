@@ -1,0 +1,290 @@
+---
+# Source: data-space-connector/charts/keycloak/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: provider-keycloak
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.1.5
+    helm.sh/chart: keycloak-24.5.2
+    app.kubernetes.io/component: keycloak
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  podManagementPolicy: Parallel
+  serviceName: provider-keycloak-headless
+  updateStrategy:
+    rollingUpdate: {}
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: provider
+      app.kubernetes.io/name: keycloak
+      app.kubernetes.io/component: keycloak
+  template:
+    metadata:
+      annotations:
+        checksum/configmap-env-vars: 0496824ad1ab2e804834b5055219102c268275dfaf6962901365327e341748f0
+      labels:
+        app.kubernetes.io/instance: provider
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: keycloak
+        app.kubernetes.io/version: 26.1.5
+        helm.sh/chart: keycloak-24.5.2
+        app.kubernetes.io/component: keycloak
+        app.kubernetes.io/app-version: 26.1.5
+    spec:
+      serviceAccountName: provider-keycloak
+      
+      automountServiceAccountToken: true
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: provider
+                    app.kubernetes.io/name: keycloak
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      enableServiceLinks: true
+      initContainers:
+        - name: prepare-write-dirs
+          image: docker.io/bitnamilegacy/keycloak:26.3.2-debian-12-r0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/bash
+          args:
+            - -ec
+            - |
+              . /opt/bitnami/scripts/liblog.sh
+
+              info "Copying writable dirs to empty dir"
+              # In order to not break the application functionality we need to make some
+              # directories writable, so we need to copy it to an empty dir volume
+              cp -r --preserve=mode /opt/bitnami/keycloak/lib/quarkus /emptydir/app-quarkus-dir
+              cp -r --preserve=mode /opt/bitnami/keycloak/data /emptydir/app-data-dir
+              cp -r --preserve=mode /opt/bitnami/keycloak/providers /emptydir/app-providers-dir
+              info "Copy operation completed"
+          resources:
+            limits:
+              cpu: "1"
+              memory: 2Gi
+            requests:
+              cpu: "0.5"
+              memory: 500Mi
+          volumeMounts:
+           - name: empty-dir
+             mountPath: /emptydir
+        - args:
+          - -ec
+          - |
+            #!/bin/bash
+            apt-get -y update; apt-get -y install wget; apt-get -y install sed;
+        
+            cd /did-material
+            wget http://did-helper:3002/did-material/cert.pfx
+            wget http://did-helper:3002/did-material/did.env
+            mkdir -p /did-material/client
+            cd /did-material/client
+            wget http://did-helper.provider.svc.cluster.local:3002/did-material/did.env
+            sed -i -e 's/DID/CLIENT_DID/g' /did-material/client/did.env
+            echo "" >> /did-material/did.env
+            echo $(cat /did-material/client/did.env) >> /did-material/did.env
+            echo $(cat /did-material/did.env)
+          command:
+          - /bin/bash
+          image: ubuntu
+          name: get-did
+          volumeMounts:
+          - mountPath: /did-material
+            name: did-material
+        - args:
+          - -ec
+          - |
+            #!/bin/bash
+            source /did-material/did.env
+            apt-get -y update; apt-get -y install curl
+            curl -X 'POST' 'http://tir.trust-anchor.svc.cluster.local:8080/issuer' -H 'Content-Type: application/json' -d "{\"did\": \"${DID}\", \"credentials\": []}"
+          command:
+          - /bin/bash
+          image: ubuntu
+          name: register-at-tir
+          volumeMounts:
+          - mountPath: /did-material
+            name: did-material
+        - args:
+          - -ec
+          - |
+            #!/bin/sh
+            export $(cat /did-material/did.env)
+            /bin/init.sh
+          command:
+          - /bin/sh
+          image: quay.io/curl/curl:8.1.2
+          name: register-at-til
+          volumeMounts:
+          - mountPath: /bin/init.sh
+            name: provider-til-registration
+            subPath: init.sh
+          - mountPath: /did-material
+            name: did-material
+        - args:
+          - -ec
+          - |
+            #!/bin/sh
+            export $(cat /etc/env/did.env)
+            cp -r /opt/bitnami/scripts/. /env-update/
+            echo "export DID=$DID" >> /env-update/keycloak-env.sh
+            cat /env-update/keycloak-env.sh
+          command:
+          - /bin/sh
+          image: docker.io/bitnamilegacy/keycloak:26.2.1-debian-12-r0
+          name: prepare-envs
+          volumeMounts:
+          - mountPath: /env-update
+            name: kc-env
+          - mountPath: /etc/env
+            name: did-material
+      containers:
+        - name: keycloak
+          image: docker.io/bitnamilegacy/keycloak:26.3.2-debian-12-r0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/bash
+            - -c
+          args:
+            - "#!/bin/sh\nexport $(cat /did-material/did.env)\nexec /opt/bitnami/scripts/keycloak/entrypoint.sh
+              /opt/bitnami/scripts/keycloak/run.sh  \n"
+          env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: KC_BOOTSTRAP_ADMIN_PASSWORD_FILE
+              value: /opt/bitnami/keycloak/secrets/keycloak-admin
+            - name: KEYCLOAK_DATABASE_PASSWORD_FILE
+              value: /opt/bitnami/keycloak/secrets/postgres-admin-password
+            - name: KEYCLOAK_HTTP_RELATIVE_PATH
+              value: "/"
+            - name: KC_SPI_ADMIN_REALM
+              value: "master"
+            - name: KEYCLOAK_LOG_LEVEL
+              value: INFO
+            - name: KEYCLOAK_EXTRA_ARGS
+              value: --import-realm
+            - name: KC_FEATURES
+              value: oid4vc-vci
+            - name: STORE_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: store-pass
+                  name: issuance-secret
+            - name: KC_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: keycloak-admin
+                  name: issuance-secret
+            - name: KC_HEAP_SIZE
+              value: 1024m
+          envFrom:
+            - configMapRef:
+                name: provider-keycloak-env-vars
+          resources:
+            limits:
+              cpu: "1"
+              memory: 2Gi
+            requests:
+              cpu: "0.5"
+              memory: 500Mi
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: discovery
+              containerPort: 7800
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 300
+            periodSeconds: 1
+            successThreshold: 1
+            timeoutSeconds: 5
+            tcpSocket:
+              port: http
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            httpGet:
+              path: /realms/master
+              port: http
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: empty-dir
+              mountPath: /bitnami/keycloak
+              subPath: app-volume-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/keycloak/conf
+              subPath: app-conf-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/keycloak/lib/quarkus
+              subPath: app-quarkus-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/keycloak/data
+              subPath: app-data-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/keycloak/providers
+              subPath: app-providers-dir
+            - name: keycloak-secrets
+              mountPath: /opt/bitnami/keycloak/secrets
+            - mountPath: /did-material
+              name: did-material
+            - mountPath: /etc/env
+              name: did-material
+              readOnly: true
+            - mountPath: /opt/bitnami/keycloak/data/import
+              name: realms
+            - mountPath: /opt/bitnami/scripts/keycloak-env.sh
+              name: kc-env
+              subPath: keycloak-env.sh
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: keycloak-secrets
+          projected:
+            sources:
+              - secret:
+                  name:  issuance-secret
+              - secret:
+                  name:  database-secret
+        - emptyDir: {}
+          name: did-material
+        - emptyDir: {}
+          name: kc-env
+        - configMap:
+            name: test-realm-realm
+          name: realms
+        - configMap:
+            defaultMode: 493
+            name: provider-til-registration
+          name: provider-til-registration

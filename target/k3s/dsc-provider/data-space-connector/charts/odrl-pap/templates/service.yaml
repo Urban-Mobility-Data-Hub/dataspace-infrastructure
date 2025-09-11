@@ -1,0 +1,24 @@
+---
+# Source: data-space-connector/charts/odrl-pap/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: odrl-pap
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: odrl-pap
+    helm.sh/chart: odrl-pap-2.0.2
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "0.1.4"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: odrl-pap
+    app.kubernetes.io/instance: provider

@@ -1,0 +1,305 @@
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/envoy-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: provider-tm-forum-api-envoy
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+data:
+  envoy-config.yaml: |
+    static_resources:
+      listeners:
+        - name: listener_0
+          address:
+            socket_address:
+              address: 0.0.0.0
+              port_value: 10000
+          filter_chains:
+          - filters: 
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_http
+                codec_type: AUTO
+                route_config:
+                  name: tmforum-api
+                  virtual_hosts:
+                    - name: tmforum-api
+                      domains: ["*"]
+                      routes:
+                        - match: 
+                            prefix: "/tmf-api/party/v4"
+                          route:
+                            cluster: party-catalog
+                        - match: 
+                            prefix: "/tmf-api/customerBillManagement/v4"
+                          route:
+                            cluster: customer-bill-management
+                        - match: 
+                            prefix: "/tmf-api/customerManagement/v4"
+                          route:
+                            cluster: customer-management
+                        - match: 
+                            prefix: "/tmf-api/productCatalogManagement/v4"
+                          route:
+                            cluster: product-catalog
+                        - match: 
+                            prefix: "/tmf-api/productInventory/v4"
+                          route:
+                            cluster: product-inventory
+                        - match: 
+                            prefix: "/tmf-api/productOrderingManagement/v4"
+                          route:
+                            cluster: product-ordering-management
+                        - match: 
+                            prefix: "/tmf-api/resourceCatalog/v4"
+                          route:
+                            cluster: resource-catalog
+                        - match: 
+                            prefix: "/tmf-api/resourceFunctionActivation/v4"
+                          route:
+                            cluster: resource-function-activation
+                        - match: 
+                            prefix: "/tmf-api/resourceInventoryManagement/v4"
+                          route:
+                            cluster: resource-inventory
+                        - match: 
+                            prefix: "/tmf-api/serviceCatalogManagement/v4"
+                          route:
+                            cluster: service-catalog
+                        - match: 
+                            prefix: "/tmf-api/agreementManagement/v4"
+                          route:
+                            cluster: agreement
+                        - match: 
+                            prefix: "/tmf-api/usageManagement/v4"
+                          route:
+                            cluster: usage-management
+                        - match: 
+                            prefix: "/tmf-api/quote/v4"
+                          route:
+                            cluster: quote
+                        - match: 
+                            prefix: "/tmf-api/accountManagement/v4"
+                          route:
+                            cluster: account                        
+                http_filters:
+                  - name: http_router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+      clusters:
+        - name: party-catalog
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: party-catalog
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-party-catalog
+                          port_value: 8080
+        - name: customer-bill-management
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: customer-bill-management
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-customer-bill-management
+                          port_value: 8080
+        - name: customer-management
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: customer-management
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-customer-management
+                          port_value: 8080
+        - name: product-catalog
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: product-catalog
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-product-catalog
+                          port_value: 8080
+        - name: product-inventory
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: product-inventory
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-product-inventory
+                          port_value: 8080
+        - name: product-ordering-management
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: product-ordering-management
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-product-ordering-management
+                          port_value: 8080
+        - name: resource-catalog
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: resource-catalog
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-resource-catalog
+                          port_value: 8080
+        - name: resource-function-activation
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: resource-function-activation
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-resource-function-activation
+                          port_value: 8080
+        - name: resource-inventory
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: resource-inventory
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-resource-inventory
+                          port_value: 8080
+        - name: service-catalog
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: service-catalog
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-service-catalog
+                          port_value: 8080
+        - name: agreement
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: agreement
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-agreement
+                          port_value: 8080
+        - name: usage-management
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: usage-management
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-usage-management
+                          port_value: 8080
+        - name: quote
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: quote
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-quote
+                          port_value: 8080
+        - name: account
+          connect_timeout: 15s
+          type: STRICT_DNS
+          dns_lookup_family: V4_ONLY
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: account
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          protocol: TCP
+                          address: provider-tm-forum-api-account
+                          port_value: 8080

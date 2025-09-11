@@ -1,0 +1,22 @@
+---
+# Source: data-space-connector/charts/apisix/templates/data-plane/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: provider-apisix-provider-data-plane
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: apisix
+    app.kubernetes.io/version: 3.10.0
+    helm.sh/chart: apisix-3.5.1
+    app.kubernetes.io/part-of: apisix
+    app.kubernetes.io/component: data-plane
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: provider-apisix-provider-data-plane
+subjects:
+  - kind: ServiceAccount
+    name: provider-apisix-data-plane
+    namespace: "provider"

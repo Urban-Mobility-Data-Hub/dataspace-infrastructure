@@ -1,0 +1,23 @@
+---
+# Source: data-space-connector/charts/scorpio/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-service-scorpio
+  namespace: "provider"
+  labels:
+    helm.sh/chart: scorpio-0.4.7
+    app.kubernetes.io/name: scorpio
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "2.1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9090
+      targetPort: 9090
+      protocol: TCP
+      name: "9090"
+  selector:
+    app.kubernetes.io/name: scorpio
+    app.kubernetes.io/instance: provider

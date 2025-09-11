@@ -1,0 +1,33 @@
+---
+# Source: data-space-connector/charts/apisix/templates/data-plane/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: provider-apisix-data-plane
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: apisix
+    app.kubernetes.io/version: 3.10.0
+    helm.sh/chart: apisix-3.5.1
+    app.kubernetes.io/part-of: apisix
+    app.kubernetes.io/component: data-plane
+spec:
+  type: LoadBalancer
+  sessionAffinity: None
+  externalTrafficPolicy: "Cluster"
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: http
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: https
+  selector:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/name: apisix
+    app.kubernetes.io/part-of: apisix
+    app.kubernetes.io/component: data-plane

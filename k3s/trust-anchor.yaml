@@ -13,7 +13,9 @@ trusted-issuers-list:
 mysql:
   primary:
     persistence:
-      enabled: false
+      enabled: true
+      storageClass: local-path
   secondary:
     persistence:
-      enabled: false
+      enabled: true
+      storageClass: local-path

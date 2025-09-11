@@ -1,0 +1,26 @@
+---
+# Source: data-space-connector/charts/odrl-pap/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: odrl-pap
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: odrl-pap
+    helm.sh/chart: odrl-pap-2.0.2
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "0.1.4"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+  - host: "pap-provider.127.0.0.1.nip.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: odrl-pap
+            port:
+              number: 8080

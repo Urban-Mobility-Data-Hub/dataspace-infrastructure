@@ -1,0 +1,31 @@
+---
+# Source: data-space-connector/charts/mysql/templates/networkpolicy.yaml
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: authentication-mysql
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/version: 8.4.4
+    helm.sh/chart: mysql-12.2.2
+    app.kubernetes.io/part-of: mysql
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: provider
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: mysql
+      app.kubernetes.io/version: 8.4.4
+      helm.sh/chart: mysql-12.2.2
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}
+  ingress:
+    # Allow connection from other cluster pods
+    - ports:
+        - port: 3306

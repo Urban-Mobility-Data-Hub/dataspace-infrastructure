@@ -1,0 +1,140 @@
+---
+# Source: data-space-connector/templates/apisix-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apisix-routes
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+data:
+  apisix.yaml: |-
+    routes:
+      
+      - uri: /.well-known/openid-configuration
+        host: mp-data-service.127.0.0.1.nip.io
+        upstream:
+          nodes:
+            verifier:3000: 1
+          type: roundrobin
+        plugins:
+          proxy-rewrite:
+            uri: /services/data-service/.well-known/openid-configuration
+      - uri: /.well-known/openid-configuration
+        host: tpp-service.127.0.0.1.nip.io
+        upstream:
+          nodes:
+            verifier:3000: 1
+          type: roundrobin
+        plugins:
+          proxy-rewrite:
+            uri: /services/tpp-service/.well-known/openid-configuration
+      - uri: /.well-known/data-space-configuration
+        upstream:
+          nodes:
+            dsconfig:3002: 1
+          type: roundrobin
+        plugins:
+          proxy-rewrite:
+            uri: /.well-known/data-space-configuration/data-space-configuration.json
+          response-rewrite:
+            headers:
+              set:
+                content-type: application/json
+      - uri: /*
+        host: tpp-data-service.127.0.0.1.nip.io
+        upstream:
+          nodes:
+            data-service-scorpio:9090: 1
+          type: roundrobin
+        plugins:
+          openid-connect:
+            proxy_opts:
+              https_proxy: http://squid-proxy.infra.svc.cluster.local:8888
+            bearer_only: true
+            use_jwks: true
+            client_id: contract-management
+            client_secret: unused
+            ssl_verify: false
+            discovery: https://provider-verifier.io/services/tmf-api/.well-known/openid-configuration
+          opa:
+            host: "http://localhost:8181"
+            policy: tpp
+      - uri: /*
+        host: mp-data-service.127.0.0.1.nip.io
+        upstream:
+          nodes:
+            data-service-scorpio:9090: 1
+          type: roundrobin
+        plugins: 
+          openid-connect:
+            proxy_opts:
+              https_proxy: http://squid-proxy.infra.svc.cluster.local:8888
+            bearer_only: true
+            use_jwks: true
+            client_id: data-service
+            client_secret: unused
+            ssl_verify: false
+            discovery: https://provider-verifier.io/services/data-service/.well-known/openid-configuration
+          opa:
+            host: "http://localhost:8181"
+            policy: policy/main
+            with_body: true
+      - uri: /.well-known/openid-configuration
+        host: mp-tmf-api.127.0.0.1.nip.io
+        upstream:
+          nodes:
+            verifier:3000: 1
+          type: roundrobin
+        plugins:
+          proxy-rewrite:
+            uri: /services/tmf-api/.well-known/openid-configuration
+      - uri: /api/v1/catalogs
+        host: tpp-catalog-service.127.0.0.1.nip.io
+        upstream:
+          nodes:
+            rainbow:8080: 1
+      - uri: /*
+        host: tpp-service.127.0.0.1.nip.io
+        upstream:
+          nodes:
+            rainbow:8080: 1
+        plugins:
+          openid-connect:
+            proxy_opts:
+              https_proxy: http://squid-proxy.infra.svc.cluster.local:8888
+            bearer_only: true
+            use_jwks: true
+            client_id: data-service
+            client_secret: unused
+            ssl_verify: false
+            discovery: https://provider-verifier.io/services/data-service/.well-known/openid-configuration
+          opa:
+            host: "http://localhost:8181"
+            policy: policy/main
+            with_body: true
+      - uri: /*
+        host: mp-tmf-api.127.0.0.1.nip.io
+        upstream:
+          nodes:
+            tm-forum-api:8080: 1
+          type: roundrobin
+        plugins:
+          openid-connect:
+            proxy_opts:
+              https_proxy: http://squid-proxy.infra.svc.cluster.local:8888
+            bearer_only: true
+            use_jwks: true
+            client_id: contract-management
+            client_secret: unused
+            ssl_verify: false
+            discovery: https://provider-verifier.io/services/tmf-api/.well-known/openid-configuration
+          opa:
+            host: "http://localhost:8181"
+            policy: policy/main
+            with_body: true
+    #END

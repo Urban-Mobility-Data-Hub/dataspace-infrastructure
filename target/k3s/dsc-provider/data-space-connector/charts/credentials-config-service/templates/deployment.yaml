@@ -1,0 +1,86 @@
+---
+# Source: data-space-connector/charts/credentials-config-service/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: credentials-config-service
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: credentials-config-service
+    helm.sh/chart: credentials-config-service-2.1.12
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: credentials-config-service
+      app.kubernetes.io/instance: provider
+  template:
+    metadata:
+      labels:
+        
+        app.kubernetes.io/name: credentials-config-service
+        helm.sh/chart: credentials-config-service-2.1.12
+        app.kubernetes.io/instance: provider
+        app.kubernetes.io/version: "0.0.1"
+        app.kubernetes.io/managed-by: Helm
+    spec: 
+      serviceAccountName: default
+      containers:
+        - name: credentials-config-service
+          imagePullPolicy: IfNotPresent
+          image: "quay.io/fiware/credentials-config-service:3.2.3"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: http-health
+              containerPort: 9090
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 31
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          env:
+            - name: ENDPOINTS_ALL_PORT
+              value: "9090"
+            - name: MICRONAUT_SERVER_PORT
+              value: "8080"
+            - name: MICRONAUT_METRICS_ENABLED
+              value: "true"
+            - name: DATASOURCES_DEFAULT_URL
+              value: "jdbc:mysql://authentication-mysql:3306/ccsdb"
+            - name: DATASOURCES_DEFAULT_DRIVER_CLASS_NAME
+              value: "com.mysql.cj.jdbc.Driver"
+            - name: DATASOURCES_DEFAULT_USERNAME
+              value: "root"
+            - name: DATASOURCES_DEFAULT_DIALECT
+              value: "MYSQL"
+            - name: DATASOURCES_DEFAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authentication-database-secret
+                  key: mysql-root-password
+          resources:
+            null

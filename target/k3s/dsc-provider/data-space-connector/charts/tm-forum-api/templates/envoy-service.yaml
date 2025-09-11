@@ -1,0 +1,22 @@
+---
+# Source: data-space-connector/charts/tm-forum-api/templates/envoy-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: tm-forum-api
+  namespace: "provider"
+  labels:
+    
+    helm.sh/chart: tm-forum-api-0.14.11
+    app.kubernetes.io/version: "0.13.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tm-forum-api-envoy
+    app.kubernetes.io/instance: provider

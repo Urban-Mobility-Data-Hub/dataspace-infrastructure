@@ -1,0 +1,28 @@
+---
+# Source: data-space-connector/charts/keycloak/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: provider-keycloak
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/version: 26.1.5
+    helm.sh/chart: keycloak-24.5.2
+    app.kubernetes.io/component: keycloak
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  rules:
+    - host: "keycloak-provider.127.0.0.1.nip.io"
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: provider-keycloak
+                port:
+                  name: http

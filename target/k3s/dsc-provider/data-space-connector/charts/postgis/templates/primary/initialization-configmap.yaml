@@ -1,0 +1,17 @@
+---
+# Source: data-space-connector/charts/postgis/templates/primary/initialization-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-service-postgis-init-scripts
+  namespace: "provider"
+  labels:
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: data-service-postgis
+    app.kubernetes.io/version: 17.6.0
+    helm.sh/chart: postgis-16.7.27
+data:
+  enable.sh: |
+    psql postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432 -c "CREATE EXTENSION postgis;"
+    psql postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432 -c "CREATE DATABASE ngb;"

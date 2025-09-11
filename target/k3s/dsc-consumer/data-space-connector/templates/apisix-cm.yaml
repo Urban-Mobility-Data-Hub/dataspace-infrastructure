@@ -1,0 +1,32 @@
+---
+# Source: data-space-connector/templates/apisix-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apisix-routes
+  namespace: "consumer"
+  labels:
+    
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: consumer
+    app.kubernetes.io/managed-by: Helm
+data:
+  apisix.yaml: |-
+    routes:
+      - uri: /*
+        upstream:
+            nodes:
+                http://my-broker:8000: 1
+            type: roundrobin
+        plugins:
+          openid-connect:
+            client_id: mySecuredService
+            client_secret: the-secret
+            bearer_only: true
+            use_jwks: true
+            discovery: http://verifier:3000/services/mySecuredService/.well-known/openid-configuration
+          opa:
+            host: "http://localhost:8181"
+            policy: policy/main
+    #END

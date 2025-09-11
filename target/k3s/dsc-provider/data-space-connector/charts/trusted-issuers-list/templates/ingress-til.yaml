@@ -1,0 +1,26 @@
+---
+# Source: data-space-connector/charts/trusted-issuers-list/templates/ingress-til.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: trusted-issuers-list-til
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: trusted-issuers-list
+    helm.sh/chart: trusted-issuers-list-0.10.3
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/version: "0.3.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+  - host: "til-provider.127.0.0.1.nip.io"
+    http:
+      paths:
+      - path: /issuer
+        pathType: Prefix
+        backend:
+          service:
+            name: trusted-issuers-list
+            port:
+              number: 8080

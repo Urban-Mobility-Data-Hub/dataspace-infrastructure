@@ -344,28 +344,34 @@ mysql:
   resourcesPreset: none
   primary:
     persistence:
-      enabled: false
+      enabled: true
+      storageClass: local-path
   secondary:
     persistence:
-      enabled: false
+      enabled: true
+      storageClass: local-path
 
 postgis:
   primary:
     resourcesPreset: none
     persistence:
-      enabled: false
+      enabled: true
+      storageClass: local-path
   readReplicas:
     persistence:
-      enabled: false
+      enabled: true
+      storageClass: local-path
 
 postgresql:
   primary:
     resourcesPreset: none
     persistence:
-      enabled: false
+      enabled: true
+      storageClass: local-path
   readReplicas:
     persistence:
-      enabled: false
+      enabled: true
+      storageClass: local-path
 
 did:
   enabled: true
@@ -524,7 +530,8 @@ mongodb:
   enabled: true
   resourcesPreset: none
   persistence:
-    enabled: false
+    enabled: true
+    storageClass: local-path
   architecture: standalone
 
 marketplace:

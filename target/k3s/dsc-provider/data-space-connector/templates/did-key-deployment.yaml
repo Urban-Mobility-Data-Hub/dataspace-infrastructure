@@ -1,0 +1,70 @@
+---
+# Source: data-space-connector/templates/did-key-deployment.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: did-helper
+  namespace: "provider"
+  labels:
+    
+    app.kubernetes.io/name: data-space-connector
+    helm.sh/chart: data-space-connector-8.2.20
+    app.kubernetes.io/instance: provider
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: did-helper
+      app.kubernetes.io/instance: provider
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: did-helper
+        app.kubernetes.io/instance: provider
+    spec:
+      serviceAccountName: default
+      initContainers:
+        - name: init-did
+          image: quay.io/wi_stefan/did-helper:0.1.1
+          env:
+            - name: COUNTRY
+              value: DE
+            - name: STATE
+              value: SAXONY
+            - name: LOCALITY
+              value: Dresden
+            - name: ORGANIZATION
+              value: M&P Operations Inc.
+            - name: COMMON_NAME
+              value: www.mp-operation.org
+            - name: STORE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: issuance-secret
+                  key: store-pass
+            - name: KEY_ALIAS
+              value: didPrivateKey
+            - name: OUTPUT_FORMAT
+              value: env
+            - name: OUTPUT_FILE
+              value: /cert/did.env
+          volumeMounts:
+            - name: did-material
+              mountPath: /cert
+
+      containers:
+        - name: did-material
+          imagePullPolicy: Always
+          image: "lipanski/docker-static-website:2.1.0"
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          volumeMounts:
+            - name: did-material
+              mountPath: /home/static/did-material
+      volumes:
+        - name: did-material
+          emptyDir: { }
