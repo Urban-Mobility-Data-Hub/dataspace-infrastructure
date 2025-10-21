@@ -33,26 +33,27 @@ Esta guía explica cómo desplegar el entorno del **Dataspace** paso a paso, tan
 
 ---
 
-!!! tip "Requisitos del sistema"
-    Dado que el despliegue local instala **2 instancias de conector** y un **trust-anchor**, se recomienda utilizar una máquina lo suficientemente potente. Aunque **16 GB de RAM** podrían ser suficientes, se aconseja disponer de **más de 24 GB**. El despliegue se ha construido y probado en **Ubuntu**, aunque la mayoría de las demás distribuciones de Linux también deberían funcionar.
+### Requisitos del sistema
+Dado que el despliegue local instala **2 instancias de conector** y un **trust-anchor**, se recomienda utilizar una máquina lo suficientemente potente. Aunque **16 GB de RAM** podrían ser suficientes, se aconseja disponer de **más de 24 GB**. El despliegue se ha construido y probado en **Ubuntu**, aunque la mayoría de las demás distribuciones de Linux también deberían funcionar.
 
 ---
 
-!!! info "Dependencias necesarias"
-    El despliegue local intenta estar lo más **desacoplado posible del sistema anfitrión** para reducir los requisitos, pero aun así necesita los siguientes programas:
-    - **Maven**  
-    - **Java Development Kit (JDK)** — al menos **versión 17**  
-    - **Docker**
+### Dependencias necesarias
+El despliegue local intenta estar lo más **desacoplado posible del sistema anfitrión** para reducir los requisitos, pero aun así necesita los siguientes programas:
+
+- **Maven**  
+- **Java Development Kit (JDK)** — al menos **versión 17**  
+- **Docker**
 
 ---
 
-!!! info "Herramientas recomendadas"
-    Para interactuar con el sistema, también son útiles las siguientes herramientas:
+### Herramientas recomendadas
+Para interactuar con el sistema, también son útiles las siguientes herramientas:
     
-    - **kubectl**  
-    - **curl**  
-    - **jq**  
-    - **yq**
+- **kubectl**  
+- **curl**  
+- **jq**  
+- **yq**
 
 ---
 
