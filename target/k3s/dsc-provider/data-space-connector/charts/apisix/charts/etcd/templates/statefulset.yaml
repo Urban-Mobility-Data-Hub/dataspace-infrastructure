@@ -33,7 +33,7 @@ spec:
         helm.sh/chart: etcd-10.2.18
         app.kubernetes.io/component: etcd
       annotations:
-        checksum/token-secret: 1847f030ec74e56677e5c02bc0582c9c183dd965762624d7455e619bd58ed259
+        checksum/token-secret: 1a122da8ffff56a1ca488fa684cdd2d11aee486fdd960b386e8be579fff0f5d3
     spec:
       
       automountServiceAccountToken: false

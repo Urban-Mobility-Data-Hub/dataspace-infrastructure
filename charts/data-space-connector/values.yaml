@@ -310,9 +310,8 @@ apisix:
     oidc:
       clientId: mySecuredService
       discoveryEndpoint: http://verifier:3000/services/mySecuredService/.well-known/openid-configuration
-
   # -- configuration of routes for apisix
-  routes:
+  routes: |-
 #    - uri: /myRoute
 #      upstream:
 #        nodes:
@@ -853,7 +852,7 @@ contract-management:
 
 # -- configuration for the did-helper, should only be used for demonstrational deployments, see https://github.com/wistefan/did-helper
 did:
-  enabled: false
+  enabled: true
 
 # -- configuration for registering a participant at the til, will most probably only be used in demonstrational enviornments
 registration:

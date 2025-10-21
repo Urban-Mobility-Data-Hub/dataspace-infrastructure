@@ -62,5 +62,6 @@ spec:
               mountPath: /home/static/did-material
       volumes:
         - name: did-material
-          emptyDir: { }
+          persistentVolumeClaim:
+            claimName: did-helper-pvc
 {{- end }}

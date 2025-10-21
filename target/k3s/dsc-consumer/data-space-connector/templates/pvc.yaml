@@ -1,0 +1,16 @@
+---
+# Source: data-space-connector/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: did-helper-pvc
+  namespace: consumer
+  annotations:
+    "helm.sh/resource-policy": keep   # <-- así no se borra al hacer `helm uninstall`
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: local-path

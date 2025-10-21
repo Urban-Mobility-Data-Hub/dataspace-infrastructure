@@ -9,7 +9,7 @@ Este repositorio contiene el **dataspace de referencia** utilizado en el proyect
 
 El dataspace se basa en un conjunto de servicios interoperables que permiten la **publicación, descubrimiento y consumo de datos** entre entidades participantes.
 
-![Diagrama de componentes](assets/diagrama-componentes.svg)
+![Diagrama de componentes](doc/img/diagrama-componentes.svg)
 
 | Componente | Rol | Campo en el diagrama | Enlace |
 |-------------|-----|----------------------|---------|
@@ -26,12 +26,6 @@ El dataspace se basa en un conjunto de servicios interoperables que permiten la 
 | **MySQL** | Base de datos relacional utilizada para almacenamiento estructurado de configuraciones o contratos. | Base de datos | [mysql.com](https://www.mysql.com) |
 | **PostgreSQL** | Base de datos relacional avanzada para almacenamiento estructurado. | Base de datos | [postgresql.org](https://www.postgresql.org) |
 | **PostGIS** | Extensión espacial de PostgreSQL que añade soporte geoespacial y consultas sobre datos geográficos. | Base de datos | [postgis.net](https://postgis.net/) |
-
----
-hide:
-  - toc
-  - navigation
----
 
 # Guía de Despliegue del Dataspace
 
