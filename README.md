@@ -40,7 +40,6 @@ Esta guía explica cómo desplegar el entorno del **Dataspace** paso a paso, tan
 
 !!! info "Dependencias necesarias"
     El despliegue local intenta estar lo más **desacoplado posible del sistema anfitrión** para reducir los requisitos, pero aun así necesita los siguientes programas:
-    
     - **Maven**  
     - **Java Development Kit (JDK)** — al menos **versión 17**  
     - **Docker**
